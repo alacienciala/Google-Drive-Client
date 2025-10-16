@@ -1,5 +1,5 @@
 import type { Plugin } from 'vue'
-import vue3GoogleLogin from 'vue3-google-login'
+import GoogleSignInPlugin from 'vue3-google-signin'
 
 const plugin: Plugin = {
   install(app) {
@@ -10,7 +10,7 @@ const plugin: Plugin = {
       return
     }
 
-    app.use(vue3GoogleLogin, {
+    app.use(GoogleSignInPlugin, {
       clientId,
     })
   }

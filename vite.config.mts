@@ -1,5 +1,6 @@
 // Plugins
 import Components from 'unplugin-vue-components/vite'
+import VueRouter from 'unplugin-vue-router/vite'
 import Vue from '@vitejs/plugin-vue'
 import Vuetify, { transformAssetUrls } from 'vite-plugin-vuetify'
 import Fonts from 'unplugin-fonts/vite'
@@ -11,12 +12,18 @@ import { fileURLToPath, URL } from 'node:url'
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [
+    VueRouter({
+      routesFolder: 'src/pages',
+      dts: 'src/types/vue-router.d.ts',
+    }),
     Vue({
       template: { transformAssetUrls },
     }),
     // https://github.com/vuetifyjs/vuetify-loader/tree/master/packages/vite-plugin#readme
     Vuetify(),
-    Components(),
+    Components({
+      dts: 'src/types/components.d.ts',
+    }),
     Fonts({
       fontsource: {
         families: [
