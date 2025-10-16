@@ -29,9 +29,7 @@ watch(
       />
     </v-main>
     <v-main v-else>
-      <suspense>
-        <router-view />
-      </suspense>
+      <router-view />
     </v-main>
   </v-app>
 </template>

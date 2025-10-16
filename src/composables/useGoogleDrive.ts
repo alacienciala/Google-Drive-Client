@@ -4,12 +4,13 @@ import axios from 'axios'
 export interface GoogleDriveFile {
   id: string
   name: string
-  size?: string
+  size: string | undefined
   mimeType: string
-  iconLink?: string
-  webViewLink?: string
-  webContentLink?: string
+  iconLink: string | undefined
+  webViewLink: string | undefined
+  webContentLink: string | undefined
   modifiedTime: string
+  parents: string[] | undefined
 }
 
 export interface GoogleDriveFileListResponse {
@@ -18,11 +19,13 @@ export interface GoogleDriveFileListResponse {
 }
 
 
-export default async function useGoogleDrive() {
+export default function useGoogleDrive() {
   const auth = useAuth()
 
-  const getFiles = async () => {
-    const files = new Set<GoogleDriveFile>([])
+  const getFiles = async (
+    directoryId: string|undefined = undefined
+  ) => {
+    const files: GoogleDriveFile[] = []
 
     const call = async (pageToken?: string) => {
       const response = await axios.get<GoogleDriveFileListResponse>(
@@ -34,7 +37,9 @@ export default async function useGoogleDrive() {
           params: {
             pageSize: 1000,
             pageToken: pageToken,
-            q: "'root' in parents and trashed = false",
+            q: directoryId
+              ? `'${directoryId}' in parents and trashed = false`
+              : "'root' in parents and trashed = false",
             fields: 'nextPageToken, files(id,name,size,mimeType,iconLink,webViewLink,webContentLink,modifiedTime)',
            orderBy: 'folder asc, modifiedTime desc, name',
           },
@@ -47,11 +52,26 @@ export default async function useGoogleDrive() {
 
     do {
       const data = await call(pageToken)
-      data.files.forEach(file => files.add(file))
+      data.files.forEach(file => files.push(file))
       pageToken = data.nextPageToken
     } while (pageToken)
 
-    return Array.from(files)
+    return files
+  }
+
+  const getFile = async (fileId: string) => {
+    const response = await axios.get<GoogleDriveFile>(
+      `https://www.googleapis.com/drive/v3/files/${fileId}`,
+      {
+        headers: {
+          Authorization: `${auth.user.value?.session.tokenType} ${auth.user.value?.session.accessToken}`,
+        },
+        params: {
+          fields: 'id,name,size,mimeType,iconLink,webViewLink,webContentLink,modifiedTime,parents',
+        }
+      }
+    )
+    return response.data
   }
 
   const isDirectory = (file: GoogleDriveFile) => {
@@ -60,6 +80,7 @@ export default async function useGoogleDrive() {
 
   return {
     getFiles,
+    getFile,
     isDirectory,
   }
 }

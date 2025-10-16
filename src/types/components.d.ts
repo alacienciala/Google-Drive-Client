@@ -9,6 +9,7 @@ export {}
 declare module 'vue' {
   export interface GlobalComponents {
     AuthProvider: typeof import('./../components/providers/AuthProvider.vue')['default']
+    DriveFilesDataTable: typeof import('./../components/DriveFilesDataTable.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
   }
