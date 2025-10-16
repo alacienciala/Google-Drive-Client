@@ -9,7 +9,11 @@ export {}
 declare module 'vue' {
   export interface GlobalComponents {
     AuthProvider: typeof import('./../components/providers/AuthProvider.vue')['default']
+    DeleteFileDialog: typeof import('./../components/dialogs/DeleteFileDialog.vue')['default']
     DriveFilesDataTable: typeof import('./../components/DriveFilesDataTable.vue')['default']
+    DuplicateFileDialog: typeof import('./../components/dialogs/DuplicateFileDialog.vue')['default']
+    MoveFileDialog: typeof import('./../components/dialogs/MoveFileDialog.vue')['default']
+    RenameFileDialog: typeof import('./../components/dialogs/RenameFileDialog.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
   }

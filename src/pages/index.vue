@@ -7,15 +7,21 @@ const { getFiles } = useGoogleDrive()
 const loading = ref(true)
 const items = ref<GoogleDriveFile[]>([])
 
-getFiles().then((value) => {
-  items.value = value
-  loading.value = false
-})
+const reload = () => {
+  loading.value = true
+  getFiles().then((value) => {
+    items.value = value
+    loading.value = false
+  })
+}
+
+reload()
 </script>
 
 <template>
   <drive-files-data-table
     :items="items"
     :loading="loading"
+    @reload="reload"
   />
 </template>

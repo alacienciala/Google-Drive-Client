@@ -11,14 +11,16 @@ const loading = ref(true)
 const file = ref<GoogleDriveFile | undefined>()
 const items = ref<GoogleDriveFile[]>([])
 
+const reload = async () => {
+  loading.value = true
+  file.value = await getFile(directoryId.value)
+  items.value = await getFiles(directoryId.value)
+  loading.value = false
+}
+
 watch(
   directoryId,
-  async (value) => {
-    loading.value = true
-    file.value = await getFile(value)
-    items.value = await getFiles(value)
-    loading.value = false
-  },
+  async () => await reload(),
   { immediate: true }
 )
 </script>
@@ -26,7 +28,9 @@ watch(
 <template>
   <drive-files-data-table
     :parent-id="file?.parents?.length ? file.parents[0] : undefined"
+    :current-id="directoryId"
     :items="items"
     :loading="loading"
+    @reload="reload"
   />
 </template>

@@ -39,7 +39,6 @@ export default function useAuth() {
   const clearUser = () => user.value = undefined
 
   if (user.value && isTokenExpired(user.value.session.expiresIn)) {
-    console.log('Token expired, clearing user')
     clearUser()
   }
 
