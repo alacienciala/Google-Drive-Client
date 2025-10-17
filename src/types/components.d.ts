@@ -13,6 +13,7 @@ declare module 'vue' {
     DriveFilesDataTable: typeof import('./../components/DriveFilesDataTable.vue')['default']
     DuplicateFileDialog: typeof import('./../components/dialogs/DuplicateFileDialog.vue')['default']
     MoveFileDialog: typeof import('./../components/dialogs/MoveFileDialog.vue')['default']
+    OfflineFile: typeof import('./../components/OfflineFile.vue')['default']
     RenameFileDialog: typeof import('./../components/dialogs/RenameFileDialog.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']

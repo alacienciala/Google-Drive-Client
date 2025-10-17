@@ -7,7 +7,7 @@ export default function useCache() {
   const storage = useStorage(
     `${auth.user.value!.id}-google-drive-cache`,
     {} as Record<string, GoogleDriveFile | GoogleDriveFile[]>,
-    undefined,
+    localStorage,
     {
       serializer: {
         read: (v: any) => v ? JSON.parse(v) : null,
@@ -27,6 +27,9 @@ export default function useCache() {
     clearCache: (key: string) => {
       const { [key]: _, ...rest } = storage.value
       storage.value = rest
-    }
+    },
+    clearAllCache: () => [
+      storage.value = {},
+    ]
   }
 }

@@ -340,6 +340,7 @@ export default function useGoogleDrive() {
     duplicateFile,
     moveFile,
     uploadFile,
+    downloadFileAsBlob,
     download,
     isDirectory,
   }

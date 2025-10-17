@@ -1,12 +1,17 @@
 <script lang="ts" setup>
 import useGoogleDrive, { type GoogleDriveFile, type UploadGoogleFile } from '@/composables/useGoogleDrive'
-import { reactive, ref, shallowRef, useTemplateRef } from 'vue'
+import { ref, shallowRef, useTemplateRef } from 'vue'
 import prettyBytes from 'pretty-bytes'
 import dayjs from 'dayjs'
 import { useRouter } from 'vue-router'
 import { onClickOutside, useDropZone } from '@vueuse/core'
 
-const { uploadFile, isDirectory, download } = useGoogleDrive()
+const {
+  uploadFile,
+  isDirectory,
+  download,
+} = useGoogleDrive()
+
 const router = useRouter()
 
 const emit = defineEmits<{
@@ -174,60 +179,64 @@ const dropzone = useDropZone(document, {
         {{ item.size ? prettyBytes(Number(item.size)) : '' }}
       </template>
       <template #item.actions="{ item }">
-        <v-menu>
-          <template #activator="{ props: menuProps }">
-            <v-btn
-              v-bind="menuProps"
-              icon="mdi-dots-vertical"
-              variant="text"
-              size="small"
-            />
-          </template>
-          <v-list>
-            <v-list-item
-              prepend-icon="mdi-open-in-new"
-              title="Open"
-              link
-              @click="handleRowDoubleClick(item)"
-            />
-            <v-list-item
-              prepend-icon="mdi-download-outline"
-              title="Download"
-              link
-              @click="download(item)"
-            />
-            <v-list-item
-              prepend-icon="mdi-rename-outline"
-              title="Rename"
-              link
-              @click="dialog = { action: 'rename', file: item }"
-            />
-            <v-list-item
-              v-if="!isDirectory(item)"
-              prepend-icon="mdi-content-copy"
-              title="Duplicate"
-              link
-              @click="dialog = { action: 'duplicate', file: item }"
-            />
-            <v-list-item
-              prepend-icon="mdi-file-move-outline"
-              title="Move"
-              link
-              @click="dialog = { action: 'move', file: item }"
-            />
-            <v-list-item
-              prepend-icon="mdi-cloud-off-outline"
-              title="Offline Access"
-              link
-            />
-            <v-list-item
-              prepend-icon="mdi-delete-outline"
-              title="Delete"
-              link
-              @click="dialog = { action: 'delete', file: item }"
-            />
-          </v-list>
-        </v-menu>
+        <offline-file :file="item" v-slot="{ hasOffline, toggleOffline, downloadOffline }">
+          <v-menu>
+            <template #activator="{ props: menuProps }">
+              <v-btn
+                v-bind="menuProps"
+                icon="mdi-dots-vertical"
+                variant="text"
+                size="small"
+              />
+            </template>
+            <v-list>
+              <v-list-item
+                prepend-icon="mdi-open-in-new"
+                title="Open"
+                link
+                @click="handleRowDoubleClick(item)"
+              />
+              <v-list-item
+                prepend-icon="mdi-download-outline"
+                title="Download"
+                link
+                @click="() => hasOffline ? downloadOffline() : download(item)"
+              />
+              <v-list-item
+                prepend-icon="mdi-rename-outline"
+                title="Rename"
+                link
+                @click="dialog = { action: 'rename', file: item }"
+              />
+              <v-list-item
+                v-if="!isDirectory(item)"
+                prepend-icon="mdi-content-copy"
+                title="Duplicate"
+                link
+                @click="dialog = { action: 'duplicate', file: item }"
+              />
+              <v-list-item
+                prepend-icon="mdi-file-move-outline"
+                title="Move"
+                link
+                @click="dialog = { action: 'move', file: item }"
+              />
+              <v-list-item
+                v-if="!isDirectory(item)"
+                :prepend-icon="hasOffline ? 'mdi-cloud-check-variant-outline' : 'mdi-cloud-off-outline'"
+                :title="hasOffline ? 'Remove from Offline' : 'Make Available Offline'"
+                @click="toggleOffline"
+                link
+              />
+              <v-list-item
+                prepend-icon="mdi-delete-outline"
+                title="Delete"
+                link
+                @click="dialog = { action: 'delete', file: item }"
+              />
+            </v-list>
+          </v-menu>
+        </offline-file>
       </template>
 
       <template #body.append>

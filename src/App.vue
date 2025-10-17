@@ -1,9 +1,15 @@
 <script lang="ts" setup>
 import { ref, watch } from 'vue'
 import useAuth from '@/composables/useAuth'
+import useCache from '@/composables/useCache'
 
 const auth = useAuth()
 const loading = ref<boolean>(true)
+
+const clearCache = () => {
+  const { clearAllCache } = useCache()
+  clearAllCache()
+}
 
 watch(
   auth.isAuthenticated,
@@ -50,6 +56,11 @@ watch(
             />
             <v-divider class="my-3" />
             <v-list-item
+              prepend-icon="mdi-refresh"
+              title="Clear Cache"
+              @click="clearCache"
+            />
+            <v-list-item
               prepend-icon="mdi-logout"
               title="Logout"
               @click="auth.clearUser"
@@ -58,7 +69,9 @@ watch(
         </v-menu>
       </v-app-bar>
       <v-main>
-        <router-view />
+        <suspense>
+          <router-view />
+        </suspense>
       </v-main>
     </template>
   </v-app>
