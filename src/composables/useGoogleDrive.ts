@@ -33,8 +33,8 @@ export default function useGoogleDrive() {
   const auth = useAuth()
   const { downloadFileFromBlob } = useFile()
 
-  const getFiles = async (
-    directoryId: string|undefined = undefined
+  const getEntities = async (
+    query: string | undefined = undefined,
   ) => {
     const files: GoogleDriveFile[] = []
 
@@ -48,11 +48,9 @@ export default function useGoogleDrive() {
           params: {
             pageSize: 1000,
             pageToken: pageToken,
-            q: directoryId
-              ? `'${directoryId}' in parents and trashed = false`
-              : "'root' in parents and trashed = false",
-            fields: 'nextPageToken, files(id,name,size,mimeType,iconLink,webViewLink,webContentLink,modifiedTime)',
-           orderBy: 'folder asc, modifiedTime desc, name',
+            q: query,
+            fields: 'nextPageToken,files(id,name,size,mimeType,iconLink,webViewLink,webContentLink,modifiedTime,parents)',
+            orderBy: 'folder asc, modifiedTime desc, name',
           },
         }
       )
@@ -68,6 +66,30 @@ export default function useGoogleDrive() {
     } while (pageToken)
 
     return files
+  }
+
+  const getFiles = async (
+    directoryId: string|undefined = undefined
+  ) => {
+    const query = directoryId
+      ? `'${directoryId}' in parents and trashed = false`
+      : "'root' in parents and trashed = false"
+
+    return await getEntities(query)
+  }
+
+  const getDirectories = async (
+    directoryId: string|undefined = undefined,
+    parentId: string | undefined = undefined,
+  ) => {
+    const dirs: GoogleDriveFile[] = []
+    const query = `'${directoryId ?? 'root'}' in parents and mimeType = 'application/vnd.google-apps.folder' and trashed = false`
+    dirs.push(...await getEntities(query))
+    if (parentId) {
+      const parentDir = await getFile(parentId)
+      dirs.unshift(parentDir)
+    }
+    return dirs
   }
 
   const getFile = async (fileId: string) => {
@@ -282,6 +304,7 @@ export default function useGoogleDrive() {
 
   return {
     getFiles,
+    getDirectories,
     getFile,
     deleteFile,
     renameFile,

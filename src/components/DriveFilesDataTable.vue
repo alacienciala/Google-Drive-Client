@@ -266,6 +266,8 @@ const dropzone = useDropZone(document, {
     />
 
     <move-file-dialog
+      :parent-directory="parentId"
+      :current-directory="currentId"
       :value="dialog?.action === 'move' ? dialog.file : undefined"
       @canceled="dialog = undefined"
       @changed="() => {
