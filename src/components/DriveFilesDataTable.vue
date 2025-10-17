@@ -103,7 +103,6 @@ const dropzone = useDropZone(document, {
       }"
       :items="items"
       :items-length="items.length || 0"
-      :loading="loading"
       item-value="id"
       :headers="[
         { title: 'Name', value: 'name' },
@@ -131,6 +130,20 @@ const dropzone = useDropZone(document, {
       }"
     >
       <template #body.prepend>
+        <tr>
+          <td
+            colspan="100%"
+            :style="{ height: '4px', borderBottom: 'none' }"
+            class="pa-0"
+          >
+            <v-progress-linear
+              v-if="loading"
+              height="4"
+              color="primary"
+              indeterminate
+            />
+          </td>
+        </tr>
         <tr v-if="parentId">
           <td colspan="100%">
             <v-btn
@@ -138,9 +151,9 @@ const dropzone = useDropZone(document, {
               prepend-icon="mdi-arrow-left"
               @click="$router.back()"
               size="small"
-            >
-              Back
-            </v-btn>
+              :disabled="loading"
+              text="Back"
+            />
           </td>
         </tr>
       </template>
@@ -202,6 +215,11 @@ const dropzone = useDropZone(document, {
               title="Move"
               link
               @click="dialog = { action: 'move', file: item }"
+            />
+            <v-list-item
+              prepend-icon="mdi-cloud-off-outline"
+              title="Offline Access"
+              link
             />
             <v-list-item
               prepend-icon="mdi-delete-outline"

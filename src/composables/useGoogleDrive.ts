@@ -1,8 +1,8 @@
-import useAuth from '@/composables/useAuth'
 import axios from 'axios'
 import { type ShallowRef } from 'vue'
 import JSZip from 'jszip'
-import useFile from '@/composables/useFile.ts'
+import useAuth from '@/composables/useAuth'
+import useFile from '@/composables/useFile'
 
 export interface GoogleDriveFile {
   id: string
