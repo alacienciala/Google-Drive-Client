@@ -151,7 +151,6 @@ const dropzone = useDropZone(document, {
               prepend-icon="mdi-arrow-left"
               @click="$router.back()"
               size="small"
-              :disabled="loading"
               text="Back"
             />
           </td>

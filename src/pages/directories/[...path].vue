@@ -10,17 +10,28 @@ const { getCache, setCache } = useCache()
 const route = useRoute<'/directories/[...path]'>()
 const directoryId = computed(() => route.params.path)
 
+const abortController = ref<AbortController | undefined>()
 const loading = ref(true)
 const file = ref<GoogleDriveFile | undefined>()
 const items = ref<GoogleDriveFile[]>([])
 
 const reload = async () => {
+  if (abortController.value) {
+    abortController.value.abort()
+  }
+  abortController.value = new AbortController()
   loading.value = true
-  file.value = await getFile(directoryId.value)
-  items.value = await getFiles(directoryId.value)
-  setCache(directoryId.value, items.value)
-  setCache(`file-${directoryId.value}`, file.value)
-  loading.value = false
+  try {
+    file.value = await getFile(directoryId.value, { signal: abortController.value?.signal })
+    items.value = await getFiles(directoryId.value, { signal: abortController.value?.signal })
+    setCache(directoryId.value, items.value)
+    setCache(`file-${directoryId.value}`, file.value)
+    abortController.value = undefined
+    loading.value = false
+  } catch (error) {
+    if ((error as DOMException).name === 'AbortError') return
+    console.error('Failed to load directory contents:', error)
+  }
 }
 
 watch(
