@@ -60,6 +60,15 @@ watch(
   },
   { immediate: true }
 )
+
+watch(
+  auth.isAuthenticated,
+  (isAuthenticated) => {
+    if (!isAuthenticated) {
+      login()
+    }
+  }
+)
 </script>
 
 <template>

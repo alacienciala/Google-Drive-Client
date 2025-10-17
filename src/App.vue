@@ -28,8 +28,38 @@ watch(
         :width="8"
       />
     </v-main>
-    <v-main v-else>
-      <router-view />
-    </v-main>
+    <template v-else>
+      <v-app-bar>
+        <v-app-bar-title text="Drive Manager" />
+        <v-spacer />
+        <v-menu offset-y>
+          <template #activator="{ props: menuProps }">
+            <v-btn
+              v-bind="menuProps"
+              icon
+            >
+              <v-avatar>
+                <v-img :src="auth.user.value?.avatar || ''" />
+              </v-avatar>
+            </v-btn>
+          </template>
+          <v-list>
+            <v-list-item
+              :title="`${auth.user.value?.firstName} ${auth.user.value?.lastName}`"
+              :subtitle="auth.user.value?.email"
+            />
+            <v-divider class="my-3" />
+            <v-list-item
+              prepend-icon="mdi-logout"
+              title="Logout"
+              @click="auth.clearUser"
+            />
+          </v-list>
+        </v-menu>
+      </v-app-bar>
+      <v-main>
+        <router-view />
+      </v-main>
+    </template>
   </v-app>
 </template>
