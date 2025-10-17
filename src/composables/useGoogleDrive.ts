@@ -1,6 +1,8 @@
 import useAuth from '@/composables/useAuth'
 import axios from 'axios'
 import { type ShallowRef } from 'vue'
+import JSZip from 'jszip'
+import useFile from '@/composables/useFile.ts'
 
 export interface GoogleDriveFile {
   id: string
@@ -29,6 +31,7 @@ export interface UploadGoogleFile {
 
 export default function useGoogleDrive() {
   const auth = useAuth()
+  const { downloadFileFromBlob } = useFile()
 
   const getFiles = async (
     directoryId: string|undefined = undefined
@@ -222,6 +225,57 @@ export default function useGoogleDrive() {
     return getFile(uploadedFileId!)
   }
 
+  const downloadFileAsBlob = async (fileId: string) => {
+    const response = await axios.get(
+      `https://www.googleapis.com/drive/v3/files/${fileId}?alt=media`,
+      {
+        headers: {
+          Authorization: `${auth.user.value?.session.tokenType} ${auth.user.value?.session.accessToken}`,
+        },
+        responseType: 'blob',
+      }
+    )
+    return response.data
+  }
+
+  const downloadFile = async (file: GoogleDriveFile) => {
+    const url = file.webContentLink
+    window.open(url, '_blank')
+  }
+
+
+  const downloadDirectory = async (directoryId: string) => {
+    const filesToDownload: { file: GoogleDriveFile, path: string }[] = []
+
+    const fetchFilesRecursively = async (parentId: string, currentPath: string) => {
+      const files = await getFiles(parentId)
+      for (const file of files) {
+        if (isDirectory(file)) {
+          await fetchFilesRecursively(file.id, `${currentPath}${file.name}/`)
+        } else {
+          filesToDownload.push({ file, path: `${currentPath}${file.name}` })
+        }
+      }
+    }
+
+    await fetchFilesRecursively(directoryId, '')
+
+    const zip = new JSZip()
+    for (const item of filesToDownload) {
+      const blob = await downloadFileAsBlob(item.file.id)
+      zip.file(item.path, blob)
+    }
+
+    downloadFileFromBlob(
+      await zip.generateAsync({ type: 'blob' }),
+      `directory_${directoryId}.zip`
+    )
+  }
+
+  const download = async (entity: GoogleDriveFile) => isDirectory(entity)
+    ? downloadDirectory(entity.id)
+    : downloadFile(entity)
+
   const isDirectory = (file: GoogleDriveFile) => {
     return file.mimeType === 'application/vnd.google-apps.folder'
   }
@@ -234,6 +288,7 @@ export default function useGoogleDrive() {
     duplicateFile,
     moveFile,
     uploadFile,
+    download,
     isDirectory,
   }
 }

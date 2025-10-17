@@ -6,7 +6,7 @@ import dayjs from 'dayjs'
 import { useRouter } from 'vue-router'
 import { onClickOutside, useDropZone } from '@vueuse/core'
 
-const { uploadFile, isDirectory } = useGoogleDrive()
+const { uploadFile, isDirectory, download } = useGoogleDrive()
 const router = useRouter()
 
 const emit = defineEmits<{
@@ -172,6 +172,18 @@ const dropzone = useDropZone(document, {
             />
           </template>
           <v-list>
+            <v-list-item
+              prepend-icon="mdi-open-in-new"
+              title="Open"
+              link
+              @click="handleRowDoubleClick(item)"
+            />
+            <v-list-item
+              prepend-icon="mdi-download-outline"
+              title="Download"
+              link
+              @click="download(item)"
+            />
             <v-list-item
               prepend-icon="mdi-rename-outline"
               title="Rename"
