@@ -38,21 +38,28 @@ watch(
       <v-app-bar>
         <v-app-bar-title text="Drive Manager" />
         <v-spacer />
-        <v-menu offset-y>
+        <v-menu offset-y eager>
           <template #activator="{ props: menuProps }">
             <v-btn
               v-bind="menuProps"
               icon
             >
-              <v-avatar>
-                <v-img :src="auth.user.value?.avatar || ''" />
+              <v-avatar v-if="auth.user.value?.avatar">
+                <v-img
+                  :src="auth.user.value.avatar"
+                  :alt="`${auth.user.value?.firstName} ${auth.user.value?.lastName}`"
+                  referrerpolicy="no-referrer"
+                  cover
+                  eager
+                />
               </v-avatar>
+              <v-icon v-else icon="mdi-account-circle"/>
             </v-btn>
           </template>
-          <v-list>
+          <v-list v-if="auth.user.value">
             <v-list-item
-              :title="`${auth.user.value?.firstName} ${auth.user.value?.lastName}`"
-              :subtitle="auth.user.value?.email"
+              :title="`${auth.user.value.firstName} ${auth.user.value.lastName}`"
+              :subtitle="auth.user.value.email"
             />
             <v-divider class="my-3" />
             <v-list-item
